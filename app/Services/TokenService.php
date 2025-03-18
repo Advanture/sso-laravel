@@ -62,7 +62,7 @@ class TokenService
         }
     }
 
-    public function validateRefreshToken(string $refreshToken): ?int
+    public function getUserIdByRefreshToken(string $refreshToken): ?int
     {
         return Redis::get("refresh_tokens:$refreshToken");
     }

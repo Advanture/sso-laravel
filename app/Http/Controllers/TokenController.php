@@ -17,7 +17,7 @@ class TokenController extends Controller
         ]);
 
         $refreshToken = $request->refresh_token;
-        $userId = $this->tokenService->validateRefreshToken($refreshToken);
+        $userId = $this->tokenService->getUserIdByRefreshToken($refreshToken);
 
         if (!$userId) {
             return response()->json([

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\NatsService;
+use App\Events\UserAuthorizedEvent;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +13,7 @@ use Exception;
 
 class GoogleAuthController extends Controller
 {
-    public function __construct(private readonly TokenService $tokenService, private readonly NatsService $natsService)
+    public function __construct(private readonly TokenService $tokenService)
     {}
 
     public function redirect()
@@ -23,7 +23,7 @@ class GoogleAuthController extends Controller
 
     public function callback()
     {
-//        try {
+        try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
             $user = User::where('email', $googleUser->getEmail())->first();
@@ -44,20 +44,17 @@ class GoogleAuthController extends Controller
 
             $tokens = $this->tokenService->generateTokens($user->id);
 
-            $this->natsService->publish('user.authenticated', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-            ]);
+            UserAuthorizedEvent::dispatch($user);
 
             return response()->json([
                 'success' => true,
                 'tokens' => $tokens,
             ]);
-//        } catch (Exception $e) {
-//            return response()->json([
-//                'success' => false,
-//                'message' => 'Google authentication failed'
-//            ], 500);
-//        }
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google authentication failed'
+            ], 500);
+        }
     }
 }

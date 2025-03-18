@@ -52,7 +52,7 @@ class TokenService
         return $refreshToken;
     }
 
-    public function validateAccessToken(string $token): ?array
+    public function getAccessTokenPayload(string $token): ?array
     {
         try {
             $decoded = JWT::decode($token, new Key($this->jwtSecret, 'HS256'));

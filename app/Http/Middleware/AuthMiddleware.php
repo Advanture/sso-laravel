@@ -29,7 +29,7 @@ class AuthMiddleware
             ], 401);
         }
 
-        $userData = $this->tokenService->validateAccessToken($token);
+        $userData = $this->tokenService->getAccessTokenPayload($token);
 
         if (!$userData) {
             return response()->json([
